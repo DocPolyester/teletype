@@ -17,6 +17,7 @@
 #define ARC_TRIGGER_TIME 60
 
 #define ARC_BRIGHTNESS_ON 13
+#define ARC_BRIGHTNESS_ON2 7
 #define ARC_BRIGHTNESS_OFF 0
 #define ARC_BRIGHTNESS_DIM 4
 
@@ -62,19 +63,7 @@ static arc_config_mode_t arc_config_mode = EUCL_LIVE;
 // sensitiviy of arc clone , original arc must be larger
 #define ARC_SENSITIVITY 2
 #define ARC_SENSITIVITY_CONF 16
-static u8 ring_sensitivity_shift;
 static s16 delta_buffer = 0;
-
-// if you change also take care of SHIFT_SENSITIVITY below
-// first number is lenght, second is shift divider for 64 leds
-// please keep sorted for efficient max_length detection!
-/*const euclidean_lengths_t el[5] = {
-  {5, 3}
-  {8, 3},
-  {12, 2},
-  {16, 2},
-  {32, 1}
-};*/
 
 
 void (*arc_refresh)(scene_state_t *ss);
@@ -141,17 +130,12 @@ void arc_metro_triggered_eucl(scene_state_t *ss) {
        max_enc = enc;
   }
 
-  if(SA.encoder[max_enc].cycle_step == 0){
-    arc_reset(ss);
+  if((SA.encoder[max_enc].cycle_step == 0) || SA.reset){
+    arc_reset(ss); // sync all
     }
 
 
-  if(SA.reset) arc_reset(ss);
-
   for(u8 enc=0; enc< monome_encs();enc++){
-
-  	SA.encoder[enc].cycle_step++;
-  	CLIP_MAX_ROLL( SA.encoder[enc].cycle_step , SA.encoder[enc].length-1);
 
   	u8 fill =SA.encoder[enc].value >> 1;
   	s8 step =SA.encoder[enc].cycle_step - SA.encoder[enc].phase_offset;
@@ -160,7 +144,9 @@ void arc_metro_triggered_eucl(scene_state_t *ss) {
   		tele_tr(enc,1);
 		   ss->tr_pulse_timer[enc]=ARC_TRIGGER_TIME;
     	}
+
   }
+
 
    SA.arc_dirty = 1;
 }
@@ -180,8 +166,6 @@ void arc_script_triggered_eucl(scene_state_t *ss, u8 enc) {
     ||SA.encoder[2].value<0
     ||SA.encoder[3].value<0)return;
 
- 	SA.encoder[enc].cycle_step++;
-	CLIP_MAX_ROLL( SA.encoder[enc].cycle_step , SA.encoder[enc].length-1);
 	u8 fill =SA.encoder[enc].value >> 1;
 	s8 step =SA.encoder[enc].cycle_step - SA.encoder[enc].phase_offset;
 	u8 out = euclidean(fill, SA.encoder[enc].length,step);
@@ -189,6 +173,7 @@ void arc_script_triggered_eucl(scene_state_t *ss, u8 enc) {
   		tele_tr(enc,1);
 		   ss->tr_pulse_timer[enc]=ARC_TRIGGER_TIME;
     	}
+
  SA.arc_dirty = 1;
 }
 
@@ -198,16 +183,16 @@ void arc_process_enc_eucl(scene_state_t *ss, u8 enc) {
   u8 length = SA.encoder[enc].length;
 
 
-  print_dbg("\r\nValue");
+/*  print_dbg("\r\nValue");
   print_dbg_hex(SA.encoder[enc].value);
   print_dbg("\r\nLength");
   print_dbg_hex(length);
-
+*/
 
  for(u8 i=0;i<length<<1;i++){
 		int eucl =euclidean(SA.encoder[enc].value >> 1 , length,(i >>1) - phase_offset_);
  		SA.leds[enc][i] = eucl>0?ARC_BRIGHTNESS_ON:ARC_BRIGHTNESS_DIM;
- 		SA.leds_layer2[enc][i] = eucl>0?ARC_BRIGHTNESS_DIM:ARC_BRIGHTNESS_DIM;
+ 		SA.leds_layer2[enc][i] = eucl>0?ARC_BRIGHTNESS_ON2:ARC_BRIGHTNESS_DIM;
  }
  for(u8 i=length<<1;i<64;i++){
  		SA.leds[enc][i] = ARC_BRIGHTNESS_OFF;
@@ -237,13 +222,17 @@ void arc_refresh_eucl(scene_state_t *ss) {
 
     for (u8 enc = 0; enc < monome_encs(); enc++) {
       for(u8 i=0;i<64;i++){
- 	      if((i>>1) != SA.encoder[enc].cycle_step){
+ 	      if((i>>1) != (SA.encoder[enc].cycle_step)){
               	monomeLedBuffer[i + (enc << 6)] = SA.leds[enc][i];
  	      }else{
               	monomeLedBuffer[i + (enc << 6)] = SA.leds_layer2[enc][i];
  	      }
       }
      	   monomeFrameDirty |= (1 << enc);
+
+   SA.encoder[enc].cycle_step++;
+   CLIP_MAX_ROLL( SA.encoder[enc].cycle_step , SA.encoder[enc].length-1);
+
     }
 
     SA.arc_dirty = 0;
@@ -282,8 +271,8 @@ SA.arc_dirty = 1;
 void arc_process_enc_eucl_conf_length(scene_state_t *ss, u8 enc, s8 delta) {
 
  delta_buffer += delta;
- print_dbg("\r\nARC delta_buffer");
- print_dbg_hex (delta_buffer);
+ //print_dbg("\r\nARC delta_buffer");
+ //print_dbg_hex (delta_buffer);
 
  if(delta_buffer>ARC_SENSITIVITY_CONF||(-delta_buffer)>ARC_SENSITIVITY_CONF){
   delta_buffer=0;

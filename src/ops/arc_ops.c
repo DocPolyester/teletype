@@ -5,7 +5,6 @@
 #include "teletype_io.h"
 
 #define SA ss->arc
-const int pattern_lengths[3] = { 8 , 16 , 32 };
 
 #define CLIP(var, min, max) \
     if (var < (min)) { \
