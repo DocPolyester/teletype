@@ -155,6 +155,7 @@ void ss_arc_init(scene_state_t *ss){
         ss->arc.encoder[enc].value = 0;
         ss->arc.encoder[enc].phase_offset = 0;
         ss->arc.encoder[enc].cycle_step = 0;
+        ss->arc.encoder[enc].next_step = false;
         ss->arc.encoder[enc].length = 16;
 	      for (u8 led=0;led<64;led++){
 		         ss->arc.leds[enc][led] = 0;

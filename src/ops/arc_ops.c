@@ -189,6 +189,7 @@ static void op_ARC_STEP_get(const void *NOTUSED(data), scene_state_t *ss,
   	  	tele_tr(enc,1);
 		    ss->tr_pulse_timer[enc]=ARC_TRIGGER_TIME;
     	}
+      SA.encoder[enc].next_step = true;
     }
   }
 
@@ -219,6 +220,6 @@ static void op_ARC_STEPN_get(const void *NOTUSED(data), scene_state_t *ss,
 		   ss->tr_pulse_timer[enc]=ARC_TRIGGER_TIME;
     	}
 
-
+ SA.encoder[enc].next_step = true;
  SA.dirty = true;
 }

@@ -213,10 +213,11 @@ typedef struct {
 
 typedef enum {
     ARC_EUCL_FILL,
+    ARC_PITCH,
+    ARC_MAXVAL,
+    ARC_MINVAL,
     ARC_EUCL_LENGTH,
     ARC_EUCL_PHASE,
-    ARC_PITCH,
-    ARC_SLEW,
     ARC_MODE_LAST
 } arc_mode_t ;
 
@@ -224,6 +225,7 @@ typedef struct {
     u16 value;
     u8 phase_offset;
     u8 cycle_step;
+    bool next_step;
     u8 length;
     arc_mode_t mode;
 } arc_enc_t;

@@ -74,14 +74,15 @@ void arc_reset(scene_state_t *ss);
 
 void arc_refresh_eucl(scene_state_t *ss, u8 enc);
 void arc_refresh_pitch(scene_state_t *ss, u8 enc);
-void arc_refresh_slew(scene_state_t *ss, u8 enc);
+void arc_refresh_maxval(scene_state_t *ss, u8 enc);
+void arc_refresh_minval(scene_state_t *ss, u8 enc);
 
 void arc_process_enc_eucl(scene_state_t *ss, u8 enc);
 void arc_process_enc_eucl_fill(scene_state_t *ss, u8 enc, s8 delta);
 void arc_process_enc_eucl_length(scene_state_t *ss, u8 enc, s8 delta);
 void arc_process_enc_eucl_phase(scene_state_t *ss, u8 enc, s8 delta);
 void arc_process_enc_pitch(scene_state_t *ss, u8 enc, s8 delta);
-void arc_process_enc_slew(scene_state_t *ss, u8 enc, s8 delta);
+void arc_process_enc_val(scene_state_t *ss, u8 enc, s8 delta);
 
 void arc_process_key_eucl(scene_state_t *ss, u8 enc);
 
@@ -98,8 +99,11 @@ void arc_refresh(scene_state_t *ss){
     case ARC_PITCH:
       arc_refresh_pitch(ss,enc);
       break;
-    case ARC_SLEW:
-     arc_refresh_slew(ss,enc);
+    case ARC_MINVAL:
+     arc_refresh_minval(ss,enc);
+     break;
+    case ARC_MAXVAL:
+      arc_refresh_maxval(ss,enc);
      break;
     case ARC_EUCL_LENGTH:
     case ARC_EUCL_PHASE:
@@ -125,8 +129,9 @@ void arc_process_enc(scene_state_t *ss, u8 enc, s8 delta){
      case ARC_PITCH:
        arc_process_enc_pitch(ss, enc, delta);
        break;
-     case ARC_SLEW:
-       arc_process_enc_slew(ss, enc, delta);
+     case ARC_MINVAL:
+     case ARC_MAXVAL:
+       arc_process_enc_val(ss, enc, delta);
        break;
      case ARC_EUCL_FILL:
      default:
@@ -243,7 +248,10 @@ void arc_refresh_eucl(scene_state_t *ss, u8 enc) {
       }
      	   monomeFrameDirty |= (1 << enc);
 
-   SA.encoder[enc].cycle_step++;
+   if(SA.encoder[enc].next_step){
+     SA.encoder[enc].cycle_step++;
+     SA.encoder[enc].next_step = false;
+   }
    CLIP_MAX_ROLL( SA.encoder[enc].cycle_step , SA.encoder[enc].length-1);
 
 }
@@ -307,12 +315,13 @@ void arc_refresh_pitch(scene_state_t *ss, u8 enc) {
 }
 
 
+
 ////////////////////////////////////////////////////////////////
-/////////////////////////   SLEW  /////////////////////////////
+/////////////////////////   MAX/MINVAL  ////////////////////////
 ////////////////////////////////////////////////////////////////
 
 
-void arc_process_enc_slew(scene_state_t *ss, u8 enc, s8 delta) {
+void arc_process_enc_val(scene_state_t *ss, u8 enc, s8 delta) {
  delta_buffer += delta;
 
  if(delta_buffer>ARC_SENSITIVITY||delta_buffer<(-ARC_SENSITIVITY)){
@@ -325,8 +334,12 @@ void arc_process_enc_slew(scene_state_t *ss, u8 enc, s8 delta) {
  }
 }
 
+////////////////////////////////////////////////////////////////
+/////////////////////////   MAXVAL  /////////////////////////////
+////////////////////////////////////////////////////////////////
 
-void arc_refresh_slew(scene_state_t *ss, u8 enc) {
+
+void arc_refresh_maxval(scene_state_t *ss, u8 enc) {
 
   CLIP_U16( SA.encoder[enc].value , 0 , 64 );
 
@@ -334,6 +347,27 @@ void arc_refresh_slew(scene_state_t *ss, u8 enc) {
       monomeLedBuffer[i + (enc << 6)] = DIM_LEVEL[i >> 3];
 
   for(u8 i=SA.encoder[enc].value;i<64;i++)
+          monomeLedBuffer[i + (enc << 6)] = 0;
+
+
+  monomeFrameDirty |= (1 << enc);
+
+}
+
+
+////////////////////////////////////////////////////////////////
+/////////////////////////   MINVAL  /////////////////////////////
+////////////////////////////////////////////////////////////////
+
+
+void arc_refresh_minval(scene_state_t *ss, u8 enc) {
+
+  CLIP_U16( SA.encoder[enc].value , 0 , 64 );
+
+  for(s16 i=63;i>=SA.encoder[enc].value;i--)
+      monomeLedBuffer[i + (enc << 6)] = DIM_LEVEL[i >> 3];
+
+  for(u8 i=0;i<SA.encoder[enc].value;i++)
           monomeLedBuffer[i + (enc << 6)] = 0;
 
 
