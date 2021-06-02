@@ -210,21 +210,33 @@ typedef struct {
 } scene_grid_t;
 
 
+
+typedef enum {
+    ARC_EUCL_FILL,
+    ARC_PITCH,
+    ARC_MAXVAL,
+    ARC_MINVAL,
+    ARC_EUCL_LENGTH,
+    ARC_EUCL_PHASE,
+    ARC_MODE_LAST
+} arc_mode_t ;
+
 typedef struct {
     u16 value;
     u8 phase_offset;
     u8 cycle_step;
+    bool next_step;
     u8 length;
+    arc_mode_t mode;
 } arc_enc_t;
 
 typedef struct {
     bool connected;
-    bool metro;
-    u16 metro_ticks;
+//    bool metro;
+//    u16 metro_ticks;
+    bool dirty;
     bool sync;
     bool reset;
-    u8 mode;
-    u8 arc_dirty;
     u8 leds[ARC_MAX_ENCS][ARC_LEDS];
     u8 leds_layer2[ARC_MAX_ENCS][ARC_LEDS];
     arc_enc_t encoder[ARC_MAX_ENCS];
