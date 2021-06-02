@@ -299,7 +299,7 @@ static void monome_poll_timer_callback(void* obj) {
 
 // monome refresh callback
 static void monome_refresh_timer_callback(void* obj) {
-    if ((grid_connected && scene_state.grid.grid_dirty)||(scene_state.arc.connected && scene_state.arc.arc_dirty)) {
+    if ((grid_connected && scene_state.grid.grid_dirty)||(scene_state.arc.connected && scene_state.arc.dirty)) {
         static event_t e;
         e.type = kEventMonomeRefresh;
         event_post(&e);
@@ -513,8 +513,8 @@ void handler_Trigger(int32_t data) {
         if (tr_state) {
             if (scene_state.variables.script_pol[input] & 1) {
                 run_script(&scene_state, input);
-                if (scene_state.arc.connected && !scene_state.arc.metro )
-                    (*arc_script_triggered)(&scene_state, input);
+//                if (scene_state.arc.connected && !scene_state.arc.metro )
+//                    (*arc_script_triggered)(&scene_state, input);
 
             }
         }
@@ -578,8 +578,8 @@ void handler_AppCustom(int32_t data) {
         run_script(&scene_state, METRO_SCRIPT);
         if (grid_connected && grid_control_mode)
             grid_metro_triggered(&scene_state);
-        if (scene_state.arc.connected && scene_state.arc.metro)
-            (*arc_metro_triggered)(&scene_state);
+    //    if (scene_state.arc.connected && scene_state.arc.metro)
+    //        (*arc_metro_triggered)(&scene_state);
     }
     else
         set_metro_icon(false);
@@ -611,13 +611,12 @@ static void handler_MonomeConnect(s32 data) {
     }
 
     if(monome_device() == eDeviceArc){
-      arc_init(&scene_state);
-      scene_state.arc.connected = 1;
+     scene_state.arc.connected = 1;
 
     //if (arc_control_mode && mode == M_HELP) set_mode(M_LIVE);
     //arc_set_control_mode(arc_control_mode, mode, &scene_state);
 
-    scene_state.arc.arc_dirty = 1;
+    scene_state.arc.dirty = true;
 
     //print_dbg("\r\nARC found");
    // arc_clear_held_keys();
@@ -630,7 +629,7 @@ static void handler_MonomePoll(s32 data) {
 
 static void handler_MonomeRefresh(s32 data) {
     grid_refresh(&scene_state);
-    (*arc_refresh)(&scene_state);
+    arc_refresh(&scene_state);
     monomeFrameDirty = 0b1111;
     (*monome_refresh)();
 }
@@ -655,7 +654,7 @@ static void handler_MonomeRingEnc(s32 data) {
     u8 n;
     s8 delta;
     monome_ring_enc_parse_event_data(data, &n, &delta);
-    (*arc_process_enc)(&scene_state, n, delta);
+    arc_process_enc(&scene_state, n, delta);
 }
 
 static void handler_MonomeRingKey(s32 data) {
@@ -669,7 +668,7 @@ static void handler_MonomeRingKey(s32 data) {
       u8 n;
       u8 delta;
       monome_ring_key_parse_event_data(data, &n, &delta);
-      (*arc_process_key)(&scene_state, n);
+      arc_process_key(&scene_state, n);
     }
 }
 
@@ -1081,7 +1080,7 @@ void tele_metro_updated() {
         set_metro_icon(false);
 
     if (grid_connected && grid_control_mode) scene_state.grid.grid_dirty = 1;
-    if (scene_state.arc.connected && arc_control_mode) scene_state.arc.arc_dirty = 1;
+    if (scene_state.arc.connected && arc_control_mode) scene_state.arc.dirty = true;
 
     edit_mode_refresh();
 }

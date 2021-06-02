@@ -147,11 +147,11 @@ void ss_grid_init(scene_state_t *ss) {
 
 void ss_arc_init(scene_state_t *ss){
   ss->arc.connected=false;
-  ss->arc.metro=false;
-  ss->arc.mode=0;
   ss->arc.sync=1;
   ss->arc.reset=0;
+  ss->arc.dirty = true;
   for (u8 enc = 0; enc < 4; enc++) {
+        ss->arc.encoder[enc].mode = ARC_EUCL_FILL;
         ss->arc.encoder[enc].value = 0;
         ss->arc.encoder[enc].phase_offset = 0;
         ss->arc.encoder[enc].cycle_step = 0;
