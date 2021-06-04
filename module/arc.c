@@ -139,23 +139,6 @@ void arc_process_enc(scene_state_t *ss, u8 enc, s8 delta){
  }
 
 
-/*
-void arc_process_key(scene_state_t *ss, u8 enc){
-    if(enc >= monome_encs()) return;
-    switch(SA.encoder[enc].mode){
-      case ARC_EUCL_LENGTH:
-      case ARC_EUCL_PHASE:
-      case ARC_EUCL_FILL:
-      default:
-        arc_process_key_eucl(ss,enc);
-        break;
-    }
-
-}
-*/
-
-
-
 void arc_reset(scene_state_t *ss){
   SA.encoder[0].cycle_step = 0;
   SA.encoder[1].cycle_step = 0;
