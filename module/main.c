@@ -103,9 +103,6 @@ static tele_mode_t last_mode = M_LIVE;
 static uint32_t ss_counter = 0;
 static u8 grid_connected = 0;
 static u8 grid_control_mode = 0;
-static u8 arc_control_mode = 0;
-static u16 ring_keybouncing = 0;
-#define RING_KEYDEBOUNCING_TIME 64
 
 static u8 midi_clock_counter = 0;
 
@@ -376,13 +373,6 @@ void handler_Front(int32_t data) {
             return;
         }
 
-/*        if (arc_connected) {
-            arc_control_mode = !arc_control_mode;
-            if (arc_control_mode && mode == M_HELP) set_mode(M_LIVE);
-            arc_set_control_mode(arc_control_mode, mode, &scene_state);
-            return;
-        }
-*/
         if (mode != M_PRESET_R) {
             front_timer = 0;
             set_preset_r_mode(adc[1] >> 7);
@@ -513,9 +503,6 @@ void handler_Trigger(int32_t data) {
         if (tr_state) {
             if (scene_state.variables.script_pol[input] & 1) {
                 run_script(&scene_state, input);
-//                if (scene_state.arc.connected && !scene_state.arc.metro )
-//                    (*arc_script_triggered)(&scene_state, input);
-
             }
         }
         else {
@@ -556,8 +543,6 @@ void handler_ScreenRefresh(int32_t data) {
 
 void handler_EventTimer(int32_t data) {
     tele_tick(&scene_state, RATE_CLOCK);
-    ring_keybouncing = (ring_keybouncing>0)?ring_keybouncing+1:0;
-    ring_keybouncing = (ring_keybouncing>RING_KEYDEBOUNCING_TIME)?0:ring_keybouncing;
 
     if (ss_counter < SS_TIMEOUT) {
         ss_counter++;
@@ -578,8 +563,6 @@ void handler_AppCustom(int32_t data) {
         run_script(&scene_state, METRO_SCRIPT);
         if (grid_connected && grid_control_mode)
             grid_metro_triggered(&scene_state);
-    //    if (scene_state.arc.connected && scene_state.arc.metro)
-    //        (*arc_metro_triggered)(&scene_state);
     }
     else
         set_metro_icon(false);
@@ -613,13 +596,8 @@ static void handler_MonomeConnect(s32 data) {
     if(monome_device() == eDeviceArc){
      scene_state.arc.connected = 1;
 
-    //if (arc_control_mode && mode == M_HELP) set_mode(M_LIVE);
-    //arc_set_control_mode(arc_control_mode, mode, &scene_state);
-
     scene_state.arc.dirty = true;
 
-    //print_dbg("\r\nARC found");
-   // arc_clear_held_keys();
     }
 }
 
@@ -647,32 +625,16 @@ static void handler_MonomeGridKey(s32 data) {
 }
 
 static void handler_MonomeRingEnc(s32 data) {
-  if (arc_control_mode && ss_counter >= SS_TIMEOUT) {
+/*  if (arc_control_mode && ss_counter >= SS_TIMEOUT) {
       exit_screensaver();
       return;
   }
+*/
     u8 n;
     s8 delta;
     monome_ring_enc_parse_event_data(data, &n, &delta);
     arc_process_enc(&scene_state, n, delta);
 }
-
-static void handler_MonomeRingKey(s32 data) {
-  if (arc_control_mode && ss_counter >= SS_TIMEOUT) {
-      exit_screensaver();
-      return;
-  }
-
-    if(!ring_keybouncing){
-      ring_keybouncing++;
-      u8 n;
-      u8 delta;
-      monome_ring_key_parse_event_data(data, &n, &delta);
-      arc_process_key(&scene_state, n);
-    }
-}
-
-
 
 static void handler_midi_connect(s32 data) {
 }
@@ -794,7 +756,6 @@ void assign_main_event_handlers() {
     app_event_handlers[kEventMonomeRefresh] = &handler_MonomeRefresh;
     app_event_handlers[kEventMonomeGridKey] = &handler_MonomeGridKey;
     app_event_handlers[kEventMonomeRingEnc] = &handler_MonomeRingEnc;
-    app_event_handlers[kEventMonomeRingKey] = &handler_MonomeRingKey;
     app_event_handlers[kEventMidiConnect] = &handler_midi_connect;
     app_event_handlers[kEventMidiDisconnect] = &handler_midi_disconnect;
     app_event_handlers[kEventMidiPacket] = &handler_standard_midi_packet;
@@ -1080,7 +1041,7 @@ void tele_metro_updated() {
         set_metro_icon(false);
 
     if (grid_connected && grid_control_mode) scene_state.grid.grid_dirty = 1;
-    if (scene_state.arc.connected && arc_control_mode) scene_state.arc.dirty = true;
+    //if (scene_state.arc.connected && arc_control_mode) scene_state.arc.dirty = true;
 
     edit_mode_refresh();
 }

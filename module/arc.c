@@ -84,9 +84,6 @@ void arc_process_enc_eucl_phase(scene_state_t *ss, u8 enc, s8 delta);
 void arc_process_enc_pitch(scene_state_t *ss, u8 enc, s8 delta);
 void arc_process_enc_val(scene_state_t *ss, u8 enc, s8 delta);
 
-void arc_process_key_eucl(scene_state_t *ss, u8 enc);
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -140,23 +137,6 @@ void arc_process_enc(scene_state_t *ss, u8 enc, s8 delta){
      }
 
  }
-
-
-
-void arc_process_key(scene_state_t *ss, u8 enc){
-    if(enc >= monome_encs()) return;
-    switch(SA.encoder[enc].mode){
-      case ARC_EUCL_LENGTH:
-      case ARC_EUCL_PHASE:
-      case ARC_EUCL_FILL:
-      default:
-        arc_process_key_eucl(ss,enc);
-        break;
-    }
-
-}
-
-
 
 
 void arc_reset(scene_state_t *ss){
@@ -257,27 +237,6 @@ void arc_refresh_eucl(scene_state_t *ss, u8 enc) {
 }
 
 
-/////////////////////// EUCL CONFIG ///////////////////////////
-
-void arc_process_key_eucl(scene_state_t *ss, u8 enc) {
-
-switch(SA.encoder[enc].mode){
-  case ARC_EUCL_LENGTH:
-  SA.encoder[enc].mode = ARC_EUCL_PHASE;
-    break;
-  case ARC_EUCL_PHASE:
-  SA.encoder[enc].mode = ARC_EUCL_FILL;
-    break;
-  case ARC_EUCL_FILL:
-  default:
-    SA.encoder[enc].mode = ARC_EUCL_LENGTH;
-    break;
-  }
-delta_buffer=0;
-SA.dirty = 1;
-}
-
-
 
 ////////////////////////////////////////////////////////////////
 /////////////////////////   PITCH  /////////////////////////////
@@ -302,14 +261,14 @@ void arc_process_enc_pitch(scene_state_t *ss, u8 enc, s8 delta) {
 void arc_refresh_pitch(scene_state_t *ss, u8 enc) {
 
   for(u8 i2=0;i2<48;i2++)
-				monomeLedBuffer[enc*64 + ((32 + i2) & 0x3f)] = ARC_BRIGHTNESS_DIM;
-	monomeLedBuffer[enc*64 + ((32 + 0) & 0x3f)] = ARC_BRIGHTNESS_ON2;
-	monomeLedBuffer[enc*64 + ((32 + 12) & 0x3f)] = ARC_BRIGHTNESS_ON2;
-	monomeLedBuffer[enc*64 + ((32 + 24) & 0x3f)] = ARC_BRIGHTNESS_ON2;
-	monomeLedBuffer[enc*64 + ((32 + 36) & 0x3f)] = ARC_BRIGHTNESS_ON2;
-	monomeLedBuffer[enc*64 + ((32 + 48) & 0x3f)] = ARC_BRIGHTNESS_ON2;
+				monomeLedBuffer[enc*64 + ((40 + i2) & 0x3f)] = ARC_BRIGHTNESS_DIM;
+	monomeLedBuffer[enc*64 + ((40 + 0) & 0x3f)] = ARC_BRIGHTNESS_ON2;
+	monomeLedBuffer[enc*64 + ((40 + 12) & 0x3f)] = ARC_BRIGHTNESS_ON2;
+	monomeLedBuffer[enc*64 + ((40 + 24) & 0x3f)] = ARC_BRIGHTNESS_ON2;
+	monomeLedBuffer[enc*64 + ((40 + 36) & 0x3f)] = ARC_BRIGHTNESS_ON2;
+	monomeLedBuffer[enc*64 + ((40 + 48) & 0x3f)] = ARC_BRIGHTNESS_ON2;
 	// show note
-	monomeLedBuffer[enc*64 + ((32 + SA.encoder[enc].value) & 0x3f)] = ARC_BRIGHTNESS_ON;
+	monomeLedBuffer[enc*64 + ((40 + SA.encoder[enc].value) & 0x3f)] = ARC_BRIGHTNESS_ON;
 
   monomeFrameDirty |= (1 << enc);
 }
@@ -346,8 +305,11 @@ void arc_refresh_maxval(scene_state_t *ss, u8 enc) {
   for(u8 i=0;i<SA.encoder[enc].value;i++)
       monomeLedBuffer[i + (enc << 6)] = DIM_LEVEL[i >> 3];
 
-  for(u8 i=SA.encoder[enc].value;i<64;i++)
+  for(u8 i=SA.encoder[enc].value+1;i<64;i++)
           monomeLedBuffer[i + (enc << 6)] = 0;
+
+
+  monomeLedBuffer[SA.encoder[enc].value + (enc << 6)] = ARC_BRIGHTNESS_ON;
 
 
   monomeFrameDirty |= (1 << enc);
@@ -364,11 +326,13 @@ void arc_refresh_minval(scene_state_t *ss, u8 enc) {
 
   CLIP_U16( SA.encoder[enc].value , 0 , 64 );
 
-  for(s16 i=63;i>=SA.encoder[enc].value;i--)
+  for(s16 i=63;i>SA.encoder[enc].value;i--)
       monomeLedBuffer[i + (enc << 6)] = DIM_LEVEL[i >> 3];
 
   for(u8 i=0;i<SA.encoder[enc].value;i++)
           monomeLedBuffer[i + (enc << 6)] = 0;
+
+  monomeLedBuffer[SA.encoder[enc].value + (enc << 6)] = ARC_BRIGHTNESS_ON;
 
 
   monomeFrameDirty |= (1 << enc);

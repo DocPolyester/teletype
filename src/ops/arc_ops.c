@@ -37,38 +37,42 @@ static void arc_reset_(scene_state_t *ss){
 
 // clang-format off
 
-static void op_ARC_MODE_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
-static void op_ARC_MODE_set  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
-static void op_ARC_SYNC_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
-static void op_ARC_SYNC_set  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
+static void op_ARC_MO_N_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
+static void op_ARC_MO_N_set  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
+static void op_ARC_MO_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
+static void op_ARC_SYN_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
+static void op_ARC_SYN_set  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
 static void op_ARC_VAL_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
+static void op_ARC_SVAL_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
 static void op_ARC_RST_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
 static void op_ARC_LEN_set  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
 static void op_ARC_LEN_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
-static void op_ARC_PHASE_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
-static void op_ARC_PHASE_set  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
-static void op_ARC_STEP_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
-static void op_ARC_STEPN_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
+static void op_ARC_PHA_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
+static void op_ARC_PHA_set  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
+static void op_ARC_STP_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
+static void op_ARC_STP_N_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
 
 
-const tele_op_t op_ARC_MODE   = MAKE_GET_SET_OP(ARC.MODE, op_ARC_MODE_get, op_ARC_MODE_set, 1, true);
-const tele_op_t op_ARC_SYNC   = MAKE_GET_SET_OP(ARC.SYNC, op_ARC_SYNC_get, op_ARC_SYNC_set, 0, true);
+const tele_op_t op_ARC_MO_N   = MAKE_GET_SET_OP(ARC.MO.N, op_ARC_MO_N_get, op_ARC_MO_N_set, 1, true);
+const tele_op_t op_ARC_MO    = MAKE_GET_OP(ARC.MO, op_ARC_MO_get, 1, true);
+const tele_op_t op_ARC_SYN   = MAKE_GET_SET_OP(ARC.SYN, op_ARC_SYN_get, op_ARC_SYN_set, 0, true);
 const tele_op_t op_ARC_RST    = MAKE_GET_OP(ARC.RST, op_ARC_RST_get, 0, true);
 const tele_op_t op_ARC_VAL    = MAKE_GET_OP(ARC.VAL, op_ARC_VAL_get, 1, true);
+const tele_op_t op_ARC_SVAL    = MAKE_GET_OP(ARC.SVAL, op_ARC_SVAL_get, 2, false);
 const tele_op_t op_ARC_LEN    = MAKE_GET_SET_OP(ARC.LEN, op_ARC_LEN_get, op_ARC_LEN_set, 1,  true);
-const tele_op_t op_ARC_PHASE  = MAKE_GET_SET_OP(ARC.PHASE, op_ARC_PHASE_get, op_ARC_PHASE_set, 1, true);
-const tele_op_t op_ARC_STEP   = MAKE_GET_OP(ARC.STEP, op_ARC_STEP_get, 0, false);
-const tele_op_t op_ARC_STEPN   = MAKE_GET_OP(ARC.STEPN, op_ARC_STEPN_get, 1, false);
+const tele_op_t op_ARC_PHA  = MAKE_GET_SET_OP(ARC.PHA, op_ARC_PHA_get, op_ARC_PHA_set, 1, true);
+const tele_op_t op_ARC_STP   = MAKE_GET_OP(ARC.STP, op_ARC_STP_get, 0, false);
+const tele_op_t op_ARC_STP_N   = MAKE_GET_OP(ARC.STP.N, op_ARC_STP_N_get, 1, false);
 
 // clang-format on
 
-static void op_ARC_MODE_get(const void *NOTUSED(data), scene_state_t *ss,
+static void op_ARC_MO_N_get(const void *NOTUSED(data), scene_state_t *ss,
                            exec_state_t *NOTUSED(es), command_state_t *cs) {
  int enc = cs_pop(cs);
  if(enc<0 || enc>3)return;
  cs_push(cs, SA.encoder[enc].mode);
 }
-static void op_ARC_MODE_set(const void *NOTUSED(data), scene_state_t *ss,
+static void op_ARC_MO_N_set(const void *NOTUSED(data), scene_state_t *ss,
                            exec_state_t *NOTUSED(es), command_state_t *cs) {
  int enc = cs_pop(cs);
  int mode = cs_pop(cs);
@@ -79,13 +83,24 @@ static void op_ARC_MODE_set(const void *NOTUSED(data), scene_state_t *ss,
  SA.encoder[enc].mode = mode;
 
 }
+static void op_ARC_MO_get(const void *NOTUSED(data), scene_state_t *ss,
+                           exec_state_t *NOTUSED(es), command_state_t *cs) {
+  int mode = cs_pop(cs);
 
-static void op_ARC_SYNC_get(const void *NOTUSED(data), scene_state_t *ss,
+  for(u8 enc=0; enc< monome_encs();enc++){
+    CLIP( mode , 0 , ARC_MODE_LAST-1);
+    SA.encoder[enc].mode = mode;
+  }
+}
+
+
+
+static void op_ARC_SYN_get(const void *NOTUSED(data), scene_state_t *ss,
                            exec_state_t *NOTUSED(es), command_state_t *cs) {
    int i = SA.sync;
     cs_push(cs, i);
 }
-static void op_ARC_SYNC_set(const void *NOTUSED(data), scene_state_t *ss,
+static void op_ARC_SYN_set(const void *NOTUSED(data), scene_state_t *ss,
                            exec_state_t *NOTUSED(es), command_state_t *cs) {
   int i = cs_pop(cs);
   if(i==0)  SA.sync = false;
@@ -111,6 +126,17 @@ static void op_ARC_VAL_get(const void *NOTUSED(data), scene_state_t *ss,
 
 }
 
+static void op_ARC_SVAL_get(const void *NOTUSED(data), scene_state_t *ss,
+                           exec_state_t *NOTUSED(es), command_state_t *cs) {
+ int enc = cs_pop(cs);
+ int value = cs_pop(cs);
+ if(enc<0 || enc>3)return;
+
+ SA.encoder[enc].value = value;
+ SA.dirty = true;
+}
+
+
 
 
 static void op_ARC_LEN_get(const void *NOTUSED(data), scene_state_t *ss,
@@ -133,10 +159,10 @@ static void op_ARC_LEN_set(const void *NOTUSED(data), scene_state_t *ss,
 
   SA.encoder[enc].length = length;
   CLIP( SA.encoder[enc].value, 0 , SA.encoder[enc].length);
-
+  SA.dirty = true;
 }
 
-static void op_ARC_PHASE_get(const void *NOTUSED(data), scene_state_t *ss,
+static void op_ARC_PHA_get(const void *NOTUSED(data), scene_state_t *ss,
                            exec_state_t *NOTUSED(es), command_state_t *cs) {
    int enc = cs_pop(cs);
    if(enc<0 || enc>3)return;
@@ -145,7 +171,7 @@ static void op_ARC_PHASE_get(const void *NOTUSED(data), scene_state_t *ss,
 
 }
 
-static void op_ARC_PHASE_set(const void *NOTUSED(data), scene_state_t *ss,
+static void op_ARC_PHA_set(const void *NOTUSED(data), scene_state_t *ss,
                            exec_state_t *NOTUSED(es), command_state_t *cs) {
   int enc = cs_pop(cs);
   int phase = cs_pop(cs);
@@ -155,13 +181,13 @@ static void op_ARC_PHASE_set(const void *NOTUSED(data), scene_state_t *ss,
 	CLIP( phase , 0 , SA.encoder[enc].length-1);
 
   SA.encoder[enc].phase_offset = phase;
-
+  SA.dirty = true;
 }
 
 
 
 
-static void op_ARC_STEP_get(const void *NOTUSED(data), scene_state_t *ss,
+static void op_ARC_STP_get(const void *NOTUSED(data), scene_state_t *ss,
                            exec_state_t *NOTUSED(es), command_state_t *cs){
   if( SA.encoder[0].value<0
     ||SA.encoder[1].value<0
@@ -171,7 +197,10 @@ static void op_ARC_STEP_get(const void *NOTUSED(data), scene_state_t *ss,
   //identify enc with max length
   int max_enc = 0;
   for(u8 enc=0; enc< monome_encs();enc++){
-     if (SA.encoder[enc].mode == ARC_EUCL_FILL && SA.encoder[enc].length>SA.encoder[max_enc].length)
+     if ((SA.encoder[enc].mode == ARC_EUCL_FILL ||
+          SA.encoder[enc].mode == ARC_EUCL_PHASE ||
+          SA.encoder[enc].mode == ARC_EUCL_LENGTH) &&
+          SA.encoder[enc].length>SA.encoder[max_enc].length)
        max_enc = enc;
   }
 
@@ -181,7 +210,9 @@ static void op_ARC_STEP_get(const void *NOTUSED(data), scene_state_t *ss,
 
 
   for(u8 enc=0; enc< monome_encs();enc++){
-    if(SA.encoder[enc].mode == ARC_EUCL_FILL){
+    if(SA.encoder[enc].mode == ARC_EUCL_FILL ||
+         SA.encoder[enc].mode == ARC_EUCL_PHASE ||
+         SA.encoder[enc].mode == ARC_EUCL_LENGTH){
     	u8 fill =SA.encoder[enc].value ;
     	s8 step =SA.encoder[enc].cycle_step - SA.encoder[enc].phase_offset;
   	  u8 out = euclidean(fill, SA.encoder[enc].length,step);
@@ -198,7 +229,7 @@ static void op_ARC_STEP_get(const void *NOTUSED(data), scene_state_t *ss,
 }
 
 
-static void op_ARC_STEPN_get(const void *NOTUSED(data), scene_state_t *ss,
+static void op_ARC_STP_N_get(const void *NOTUSED(data), scene_state_t *ss,
                            exec_state_t *NOTUSED(es), command_state_t *cs) {
  int enc = cs_pop(cs);
  if(enc<0 || enc>3 || enc >= monome_encs())return;

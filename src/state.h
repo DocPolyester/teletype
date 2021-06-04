@@ -232,8 +232,6 @@ typedef struct {
 
 typedef struct {
     bool connected;
-//    bool metro;
-//    u16 metro_ticks;
     bool dirty;
     bool sync;
     bool reset;
