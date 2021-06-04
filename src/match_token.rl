@@ -651,14 +651,16 @@
         "G.XYP.Y"          => { MATCH_OP(E_OP_G_XYP_Y); };
 
         #arc
-        "ARC.MODE"         => { MATCH_OP(E_OP_ARC_MODE); };
-        "ARC.SYNC"         => { MATCH_OP(E_OP_ARC_SYNC); };
+        "ARC.MO.N"         => { MATCH_OP(E_OP_ARC_MO_N); };
+        "ARC.MO"           => { MATCH_OP(E_OP_ARC_MO); };
+        "ARC.SYN"          => { MATCH_OP(E_OP_ARC_SYN); };
         "ARC.RST"          => { MATCH_OP(E_OP_ARC_RST); };
         "ARC.VAL"          => { MATCH_OP(E_OP_ARC_VAL); };
+        "ARC.SVAL"         => { MATCH_OP(E_OP_ARC_SVAL); };
         "ARC.LEN"          => { MATCH_OP(E_OP_ARC_LEN); };
-        "ARC.PHASE"        => { MATCH_OP(E_OP_ARC_PHASE); };
-        "ARC.STEP"         => { MATCH_OP(E_OP_ARC_STEP); };
-        "ARC.STEPN"         => { MATCH_OP(E_OP_ARC_STEPN); };
+        "ARC.PHA"          => { MATCH_OP(E_OP_ARC_PHA); };
+        "ARC.STP"          => { MATCH_OP(E_OP_ARC_STP); };
+        "ARC.STP.N"        => { MATCH_OP(E_OP_ARC_STP_N); };
 
         # w/
         "WS.PLAY"     => { MATCH_OP(E_OP_WS_PLAY); };
