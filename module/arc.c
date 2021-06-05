@@ -64,7 +64,6 @@ typedef struct {
     u8 shift;
 } euclidean_lengths_t;
 
-
 void arc_refresh(scene_state_t *ss);
 void arc_process_enc(scene_state_t *ss, u8 enc, s8 delta);
 void arc_process_key(scene_state_t *ss, u8 enc);
@@ -73,6 +72,8 @@ void arc_reset(scene_state_t *ss);
 
 
 void arc_refresh_eucl(scene_state_t *ss, u8 enc);
+void arc_refresh_eucl_conf(scene_state_t *ss, u8 enc);
+
 void arc_refresh_pitch(scene_state_t *ss, u8 enc);
 void arc_refresh_maxval(scene_state_t *ss, u8 enc);
 void arc_refresh_minval(scene_state_t *ss, u8 enc);
@@ -102,8 +103,10 @@ void arc_refresh(scene_state_t *ss){
     case ARC_MAXVAL:
       arc_refresh_maxval(ss,enc);
      break;
-    case ARC_EUCL_LENGTH:
     case ARC_EUCL_PHASE:
+    case ARC_EUCL_LENGTH:
+     arc_refresh_eucl_conf(ss,enc);
+    break;
     case ARC_EUCL_FILL:
     default:
      arc_refresh_eucl(ss,enc);
@@ -224,6 +227,26 @@ void arc_refresh_eucl(scene_state_t *ss, u8 enc) {
               	monomeLedBuffer[i + (enc << 6)] = SA.leds[enc][i];
  	      }else{
               	monomeLedBuffer[i + (enc << 6)] = SA.leds_layer2[enc][i];
+ 	      }
+      }
+     	   monomeFrameDirty |= (1 << enc);
+
+   if(SA.encoder[enc].next_step){
+     SA.encoder[enc].cycle_step++;
+     SA.encoder[enc].next_step = false;
+   }
+   CLIP_MAX_ROLL( SA.encoder[enc].cycle_step , SA.encoder[enc].length-1);
+
+}
+
+
+void arc_refresh_eucl_conf(scene_state_t *ss, u8 enc) {
+
+      for(u8 i=0;i<64;i++){
+ 	      if((i>>1) != (SA.encoder[enc].cycle_step)){
+              	monomeLedBuffer[i + (enc << 6)] = (SA.leds[enc][i]>0&&SA.leds[enc][i]<10)?SA.leds[enc][i] + 5:SA.leds[enc][i];
+ 	      }else{
+              	monomeLedBuffer[i + (enc << 6)] = (SA.leds_layer2[enc][i]>0&&SA.leds_layer2[enc][i]<10)?SA.leds_layer2[enc][i] + 5:SA.leds_layer2[enc][i];
  	      }
       }
      	   monomeFrameDirty |= (1 << enc);
