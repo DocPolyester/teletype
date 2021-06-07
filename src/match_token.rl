@@ -661,6 +661,7 @@
         "ARC.PHA"          => { MATCH_OP(E_OP_ARC_PHA); };
         "ARC.STP"          => { MATCH_OP(E_OP_ARC_STP); };
         "ARC.STP.N"        => { MATCH_OP(E_OP_ARC_STP_N); };
+        "ARC.SCR.N"        => { MATCH_OP(E_OP_ARC_SCR_N); };
 
         # w/
         "WS.PLAY"     => { MATCH_OP(E_OP_WS_PLAY); };

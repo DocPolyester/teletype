@@ -51,7 +51,7 @@ static void op_ARC_PHA_get  (const void *data, scene_state_t *ss, exec_state_t *
 static void op_ARC_PHA_set  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
 static void op_ARC_STP_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
 static void op_ARC_STP_N_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
-
+static void op_ARC_SCR_N_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
 
 const tele_op_t op_ARC_MO_N   = MAKE_GET_SET_OP(ARC.MO.N, op_ARC_MO_N_get, op_ARC_MO_N_set, 1, true);
 const tele_op_t op_ARC_MO    = MAKE_GET_OP(ARC.MO, op_ARC_MO_get, 1, true);
@@ -63,6 +63,8 @@ const tele_op_t op_ARC_LEN    = MAKE_GET_SET_OP(ARC.LEN, op_ARC_LEN_get, op_ARC_
 const tele_op_t op_ARC_PHA  = MAKE_GET_SET_OP(ARC.PHA, op_ARC_PHA_get, op_ARC_PHA_set, 1, true);
 const tele_op_t op_ARC_STP   = MAKE_GET_OP(ARC.STP, op_ARC_STP_get, 0, false);
 const tele_op_t op_ARC_STP_N   = MAKE_GET_OP(ARC.STP.N, op_ARC_STP_N_get, 1, false);
+const tele_op_t op_ARC_SCR_N   = MAKE_GET_OP(ARC.SCR.N, op_ARC_SCR_N_get, 2, false);
+
 
 // clang-format on
 
@@ -136,6 +138,22 @@ static void op_ARC_SVAL_get(const void *NOTUSED(data), scene_state_t *ss,
  SA.dirty = true;
 }
 
+
+static void op_ARC_SCR_N_get(const void *NOTUSED(data), scene_state_t *ss,
+                           exec_state_t *NOTUSED(es), command_state_t *cs) {
+ int enc = cs_pop(cs);
+ int script = cs_pop(cs);
+ if(enc<0 || enc>3)return;
+ if(script>0 && script<9){
+   SA.encoder[enc].connected_script = script-1;
+ }
+ if(script==0){
+   // switch off (suppress) execution
+   SA.encoder[enc].connected_script = 64;
+ }
+
+ SA.dirty = true;
+}
 
 
 
@@ -219,6 +237,8 @@ static void op_ARC_STP_get(const void *NOTUSED(data), scene_state_t *ss,
 	    if(out){
   	  	tele_tr(enc,1);
 		    ss->tr_pulse_timer[enc]=ARC_TRIGGER_TIME;
+        if(SA.encoder[enc].connected_script<8)
+          run_script(ss,SA.encoder[enc].connected_script);
     	}
       SA.encoder[enc].next_step = true;
     }
@@ -249,6 +269,8 @@ static void op_ARC_STP_N_get(const void *NOTUSED(data), scene_state_t *ss,
 	if(out){
   		tele_tr(enc,1);
 		   ss->tr_pulse_timer[enc]=ARC_TRIGGER_TIME;
+       if(SA.encoder[enc].connected_script<8)
+         run_script(ss,SA.encoder[enc].connected_script);
     	}
 
  SA.encoder[enc].next_step = true;

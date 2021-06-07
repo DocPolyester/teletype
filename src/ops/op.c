@@ -241,7 +241,7 @@ const tele_op_t *tele_ops[E_OP__LENGTH] = {
 
     // arc_cycles
     &op_ARC_MO_N, &op_ARC_MO, &op_ARC_SYN,&op_ARC_RST,&op_ARC_VAL,&op_ARC_SVAL,
-    &op_ARC_LEN,&op_ARC_PHA,&op_ARC_STP,&op_ARC_STP_N,
+    &op_ARC_LEN,&op_ARC_PHA,&op_ARC_STP,&op_ARC_STP_N,&op_ARC_SCR_N,
 
     // matrixarchate
     &op_MA_SELECT, &op_MA_STEP, &op_MA_RESET, &op_MA_PGM, &op_MA_ON, &op_MA_PON,
