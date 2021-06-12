@@ -228,6 +228,7 @@ typedef struct {
     bool next_step;
     u8 length;
     arc_mode_t mode;
+    u8 connected_script;
 } arc_enc_t;
 
 typedef struct {

@@ -152,6 +152,7 @@ void ss_arc_init(scene_state_t *ss){
   ss->arc.dirty = true;
   for (u8 enc = 0; enc < 4; enc++) {
         ss->arc.encoder[enc].mode = ARC_EUCL_FILL;
+        ss->arc.encoder[enc].connected_script = 64; 
         ss->arc.encoder[enc].value = 0;
         ss->arc.encoder[enc].phase_offset = 0;
         ss->arc.encoder[enc].cycle_step = 0;
