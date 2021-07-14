@@ -49,6 +49,8 @@ static s16 delta_buffer = 0;
     }
 
 
+// clang-format on
+
 u8 DIM_LEVEL[8] = {3,4,5,6,8,10,12,14};
 
 
@@ -187,6 +189,8 @@ void arc_process_enc_eucl(scene_state_t *ss, u8 enc) {
  		SA.leds_layer2[enc][i] = ARC_BRIGHTNESS_OFF;
  }
   SA.dirty = 1;
+
+  SA.encoder[enc].process = false;
 }
 
 
@@ -221,6 +225,9 @@ void arc_process_enc_eucl_phase(scene_state_t *ss, u8 enc, s8 delta) {
 }
 
 void arc_refresh_eucl(scene_state_t *ss, u8 enc) {
+
+  if(SA.encoder[enc].process)
+    arc_process_enc_eucl(ss,enc);
 
       for(u8 i=0;i<64;i++){
  	      if((i>>1) != (SA.encoder[enc].cycle_step)){
@@ -285,6 +292,10 @@ void arc_refresh_pitch(scene_state_t *ss, u8 enc) {
 
   for(u8 i2=0;i2<48;i2++)
 				monomeLedBuffer[enc*64 + ((40 + i2) & 0x3f)] = ARC_BRIGHTNESS_DIM;
+
+  for(u8 i2=48;i2<64;i2++)
+      				monomeLedBuffer[enc*64 + ((40 + i2) & 0x3f)] = ARC_BRIGHTNESS_OFF;
+
 	monomeLedBuffer[enc*64 + ((40 + 0) & 0x3f)] = ARC_BRIGHTNESS_ON2;
 	monomeLedBuffer[enc*64 + ((40 + 12) & 0x3f)] = ARC_BRIGHTNESS_ON2;
 	monomeLedBuffer[enc*64 + ((40 + 24) & 0x3f)] = ARC_BRIGHTNESS_ON2;
