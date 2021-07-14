@@ -187,11 +187,13 @@ static void op_ARC_LEN_set(const void *NOTUSED(data), scene_state_t *ss,
     for(u8 i=0; i< monome_encs();i++){
       SA.encoder[i].length = length;
       CLIP( SA.encoder[i].value, 0 , SA.encoder[i].length);
-      SA.dirty = true;
+      SA.encoder[i].process = true;
     }
+    SA.dirty = true;
   } else if(enc >=1 || enc<=4){
     SA.encoder[enc-1].length = length;
     CLIP( SA.encoder[enc-1].value, 0 , SA.encoder[enc-1].length);
+    SA.encoder[enc-1].process = true;
     SA.dirty = true;
   }
 }
@@ -213,11 +215,13 @@ static void op_ARC_PHA_set(const void *NOTUSED(data), scene_state_t *ss,
     for(u8 i=0; i< monome_encs();i++){
       CLIP( phase , 0 , SA.encoder[i].length-1);
       SA.encoder[i].phase_offset = phase;
-      SA.dirty = true;
+      SA.encoder[i].process = true;
     }
+    SA.dirty = true;
   } else if(enc >=1 || enc<=4){
     CLIP( phase , 0 , SA.encoder[enc-1].length-1);
     SA.encoder[enc-1].phase_offset = phase;
+    SA.encoder[enc-1].process = true;
     SA.dirty = true;
   }
 
