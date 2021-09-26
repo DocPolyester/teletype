@@ -224,6 +224,7 @@ typedef enum {
 typedef struct {
     u16 value;
     bool process;
+    u8 eucl_out;
     u8 phase_offset;
     u8 cycle_step;
     bool next_step;

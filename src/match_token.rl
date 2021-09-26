@@ -651,6 +651,7 @@
         "G.XYP.Y"          => { MATCH_OP(E_OP_G_XYP_Y); };
 
         #arc
+        "ARC.EUC"          => { MATCH_OP(E_OP_ARC_EUC); };
         "ARC.MO"           => { MATCH_OP(E_OP_ARC_MO); };
         "ARC.SYN"          => { MATCH_OP(E_OP_ARC_SYN); };
         "ARC.RST"          => { MATCH_OP(E_OP_ARC_RST); };

@@ -152,12 +152,13 @@ void ss_arc_init(scene_state_t *ss){
   ss->arc.dirty = true;
   for (u8 enc = 0; enc < 4; enc++) {
         ss->arc.encoder[enc].mode = ARC_EUCL_FILL;
-        ss->arc.encoder[enc].connected_script = 64; 
+        ss->arc.encoder[enc].connected_script = 64;
         ss->arc.encoder[enc].value = 0;
         ss->arc.encoder[enc].phase_offset = 0;
         ss->arc.encoder[enc].cycle_step = 0;
         ss->arc.encoder[enc].next_step = false;
         ss->arc.encoder[enc].length = 16;
+        ss->arc.encoder[enc].eucl_out = 0;
 	      for (u8 led=0;led<64;led++){
 		         ss->arc.leds[enc][led] = 0;
 		         ss->arc.leds_layer2[enc][led] = 0;

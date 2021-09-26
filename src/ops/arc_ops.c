@@ -49,6 +49,7 @@ static void op_ARC_LEN_get  (const void *data, scene_state_t *ss, exec_state_t *
 static void op_ARC_PHA_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
 static void op_ARC_PHA_set  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
 static void op_ARC_STP_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
+static void op_ARC_EUC_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
 static void op_ARC_SCR_get  (const void *data, scene_state_t *ss, exec_state_t *es,  command_state_t *cs);
 
 const tele_op_t op_ARC_MO   = MAKE_GET_SET_OP(ARC.MO, op_ARC_MO_get, op_ARC_MO_set, 1, true);
@@ -58,6 +59,7 @@ const tele_op_t op_ARC_VAL  = MAKE_GET_SET_OP(ARC.VAL, op_ARC_VAL_get,op_ARC_VAL
 const tele_op_t op_ARC_LEN  = MAKE_GET_SET_OP(ARC.LEN, op_ARC_LEN_get, op_ARC_LEN_set, 1,  true);
 const tele_op_t op_ARC_PHA  = MAKE_GET_SET_OP(ARC.PHA, op_ARC_PHA_get, op_ARC_PHA_set, 1, true);
 const tele_op_t op_ARC_STP  = MAKE_GET_OP(ARC.STP, op_ARC_STP_get, 1, false);
+const tele_op_t op_ARC_EUC  = MAKE_GET_OP(ARC.EUC, op_ARC_EUC_get, 1, true);
 const tele_op_t op_ARC_SCR  = MAKE_GET_OP(ARC.SCR, op_ARC_SCR_get, 2, false);
 
 
@@ -229,6 +231,14 @@ static void op_ARC_PHA_set(const void *NOTUSED(data), scene_state_t *ss,
 }
 
 
+static void op_ARC_EUC_get(const void *NOTUSED(data), scene_state_t *ss,
+                           exec_state_t *NOTUSED(es), command_state_t *cs) {
+   int enc = cs_pop(cs);
+   if(enc >=1 || enc<=4){
+    cs_push(cs, SA.encoder[enc-1].eucl_out);
+   }
+}
+
 
 
 
@@ -263,8 +273,8 @@ static void op_ARC_STP_get(const void *NOTUSED(data), scene_state_t *ss,
           SA.encoder[i].mode == ARC_EUCL_LENGTH){
      	u8 fill =SA.encoder[i].value ;
      	s8 step =SA.encoder[i].cycle_step - SA.encoder[i].phase_offset;
-   	  u8 out = euclidean(fill, SA.encoder[i].length,step);
- 	    if(out){
+   	  SA.encoder[i].eucl_out = euclidean(fill, SA.encoder[i].length,step);
+ 	    if(SA.encoder[i].eucl_out){
    	  	tele_tr(i,1);
  		    ss->tr_pulse_timer[i]=ARC_TRIGGER_TIME;
          if(SA.encoder[i].connected_script<8)
@@ -286,8 +296,8 @@ static void op_ARC_STP_get(const void *NOTUSED(data), scene_state_t *ss,
 
  	u8 fill =SA.encoder[enc-1].value ;
  	s8 step =SA.encoder[enc-1].cycle_step - SA.encoder[enc-1].phase_offset;
- 	u8 out = euclidean(fill, SA.encoder[enc-1].length,step);
- 	if(out){
+ 	SA.encoder[enc-1].eucl_out = euclidean(fill, SA.encoder[enc-1].length,step);
+ 	if(SA.encoder[enc-1].eucl_out){
    		tele_tr(enc-1,1);
  		   ss->tr_pulse_timer[enc-1]=ARC_TRIGGER_TIME;
         if(SA.encoder[enc-1].connected_script<8)
