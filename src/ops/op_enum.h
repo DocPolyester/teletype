@@ -631,6 +631,7 @@ typedef enum {
     E_OP_ARC_LEN,
     E_OP_ARC_PHA,
     E_OP_ARC_STP,
+    E_OP_ARC_EUC,
     E_OP_ARC_SCR,
     E_OP_MA_SELECT,
     E_OP_MA_STEP,
