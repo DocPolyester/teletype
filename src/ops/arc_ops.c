@@ -252,7 +252,7 @@ static void op_ARC_STP_get(const void *NOTUSED(data), scene_state_t *ss,
         max_enc = i;
    }
 
-   if((SA.encoder[max_enc].cycle_step == 0) || SA.reset){
+   if(((SA.encoder[max_enc].cycle_step == 0)&& SA.sync) || SA.reset){
      arc_reset_(ss); // sync all
      }
 
